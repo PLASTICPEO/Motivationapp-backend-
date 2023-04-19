@@ -90,7 +90,7 @@ let complimentsData = {
   receiveTexts: [],
 };
 
-app.get("/compliments", (request, response) => {
+app.get("/api/compliments", (request, response) => {
   response.json(complimentsData);
 });
 
@@ -105,6 +105,8 @@ app.get("/api/compliments/:id", (request, response) => {
     response.status(404).end();
   }
 });
+
+// POST request *********************************************
 
 const generateId = () => {
   const maxId =
@@ -145,6 +147,8 @@ app.post("/api/compliments", (request, response) => {
 
   response.json(compliment);
 });
+
+// POST Request ** receivedTexts **  ************************
 
 app.post("/api/receivedText", (request, response) => {
   const body = request.body;
