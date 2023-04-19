@@ -6,70 +6,173 @@ app.use(express.json());
 
 app.use(cors());
 
-let notes = [
-  {
-    id: 1,
-    content: "HTML is easy",
-    important: true,
-  },
-  {
-    id: 2,
-    content: "Browser can execute only JavaScript",
-    important: false,
-  },
-  {
-    id: 3,
-    content: "GET and POST are the most important methods of HTTP protocol",
-    important: true,
-  },
-];
+let complimentsData = {
+  compliments: [
+    {
+      id: 1,
+      text: "I have just three things to teach: simplicity, patience, compassion. These three are your greatest treasures.",
+      source: "Lao Tzu",
+      color: "#D64933",
+    },
+    {
+      id: 2,
+      text: "Do today what others won't and achieve tomorrow what others can't.",
+      source: "Jerry Rice",
+      color: "#0C7C59",
+    },
+    {
+      id: 3,
+      text: "In character, in manner, in style, in all things, the supreme excellence is simplicity.",
+      source: "Henry Wadsworth Longfellow",
+      color: "#58A4B0",
+    },
+    {
+      id: 4,
+      text: "If we don't discipline ourselves, the world will do it for us.",
+      source: "William Feather",
+      color: "#C94277",
+    },
+    {
+      id: 5,
+      text: "Rule your mind or it will rule you.",
+      source: "Horace",
+      color: "#3066BE",
+    },
+    {
+      id: 6,
+      text: "All that we are is the result of what we have thought.",
+      source: "Buddha",
+      color: "#63458A",
+    },
+    {
+      id: 7,
+      text: "Doing just a little bit during the time we have available puts you that much further ahead than if you took no action at all.",
+      source: "Pulsifer, Take Action; Don't Procrastinate",
+      color: "#84894A",
+    },
+    {
+      id: 8,
+      text: "Never leave that till tomorrow which you can do today.",
+      source: "Benjamin Franklin",
+      color: "#43AA8B",
+    },
+    {
+      id: 9,
+      text: "Procrastination is like a credit card: it's a lot of fun until you get the bill.",
+      source: "Christopher Parker",
+      color: "#7B6D8D",
+    },
+    {
+      id: 10,
+      text: "Someday is not a day of the week.",
+      source: "Author Unknown",
+      color: "#CA895F",
+    },
+    {
+      id: 11,
+      text: "Tomorrow is often the busiest day of the week.",
+      source: "Spanish Proverb",
+      color: "#F6AE2D",
+    },
+    {
+      id: 12,
+      text: "I can accept failure, everyone fails at something. But I can't accept not trying.",
+      source: "Michael Jordan",
+      color: "#D57A66",
+    },
+    {
+      text: "Don't go back, walk forward",
+      source: "James bond",
+      color: "#1E1912",
+      id: 14,
+    },
+  ],
+  receiveTexts: [],
+};
 
-app.get("/", (request, response) => {
-  response.send("<h1>Hello World!</h1>");
+app.get("/compliments", (request, response) => {
+  response.json(complimentsData);
 });
 
-app.get("/api/notes", (request, response) => {
-  response.json(notes);
-});
-
-app.get("/api/notes/:id", (request, response) => {
+app.get("/api/compliments/:id", (request, response) => {
   const id = Number(request.params.id);
-  const note = notes.find((note) => note.id === id);
-  if (note) {
-    response.json(note);
+  const compliment = complimentsData.compliments.find(
+    (compliment) => compliment.id === id
+  );
+  if (compliment) {
+    response.json(compliment);
   } else {
     response.status(404).end();
   }
 });
 
 const generateId = () => {
-  const maxId = notes.length > 0 ? Math.max(...notes.map((n) => n.id)) : 0;
+  const maxId =
+    complimentsData.compliments.length > 0
+      ? Math.max(...complimentsData.compliments.map((n) => n.id))
+      : 0;
   return maxId + 1;
 };
 
-app.post("/api/notes", (request, response) => {
+const getRandomColor = () => {
+  const letters = "0123456789ABCDEF";
+  let color = "#";
+  for (let i = 0; i < 6; i++) {
+    color += letters[Math.floor(Math.random() * 16)];
+  }
+  return color;
+};
+
+app.post("/api/compliments", (request, response) => {
   const body = request.body;
 
-  if (!body.content) {
+  console.log(body.text);
+
+  if (!body.text) {
     return response.status(400).json({
       error: "content missing",
     });
   }
-
-  const note = {
-    content: body.content,
-    important: body.important || false,
+  const color = getRandomColor();
+  const compliment = {
+    text: body.text,
+    source: body.source,
+    color: color,
     id: generateId(),
   };
 
-  notes = notes.concat(note);
+  complimentsData = complimentsData.compliments.concat(compliment);
 
-  response.json(note);
+  response.json(compliment);
 });
 
-app.delete("/api/notes/:id", (request, response) => {
+app.post("/api/receivedText", (request, response) => {
+  const body = request.body;
+
+  if (!body.text) {
+    return response.status(400).json({
+      error: "content missing",
+    });
+  }
+  const color = getRandomColor();
+  const compliment = {
+    text: body.text,
+    source: body.source,
+    color: color,
+    id: generateId(),
+  };
+
+  complimentsData = complimentsData.compliments.concat(compliment);
+
+  response.json(compliment);
+});
+
+app.delete("/api/compliments/:id", (request, response) => {
   const id = Number(request.params.id);
-  notes = notes.filter((note) => note.id !== id);
+
+  complimentsData.compliments = complimentsData.compliments.filter(
+    (note) => note.id !== id
+  );
   response.status(204).end();
 });
 
