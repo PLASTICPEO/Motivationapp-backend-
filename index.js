@@ -6,6 +6,22 @@ app.use(express.json());
 
 app.use(cors());
 
+var MyLib = {
+  //Max id guaranted to be unique will be 999 999 999.
+  //Add more zeros to increase the value.
+  lastUid: 100000000,
+
+  generateUid: function () {
+    this.lastUid++;
+
+    //Way to get a random int value betwen min and max:
+    //Math.floor(Math.random() * (max - min) ) + min;
+    var randValue = Math.floor(Math.random() * (99999 - 10000)) + 10000;
+
+    return String(this.lastUid.toString() + randValue);
+  },
+};
+
 let complimentsData = {
   compliments: [
     {
@@ -87,7 +103,6 @@ let complimentsData = {
       id: 14,
     },
   ],
-  receiveTexts: [],
 };
 
 app.get("/api/compliments", (request, response) => {
@@ -108,14 +123,6 @@ app.get("/api/compliments/:id", (request, response) => {
 
 // POST request *********************************************
 
-const generateId = () => {
-  const maxId =
-    complimentsData.compliments.length > 0
-      ? Math.max(...complimentsData.compliments.map((n) => n.id))
-      : 0;
-  return maxId + 1;
-};
-
 const getRandomColor = () => {
   const letters = "0123456789ABCDEF";
   let color = "#";
@@ -128,48 +135,30 @@ const getRandomColor = () => {
 app.post("/api/compliments", (request, response) => {
   const body = request.body;
 
-  console.log(body.text);
-
   if (!body.text) {
     return response.status(400).json({
       error: "content missing",
     });
   }
   const color = getRandomColor();
+
   const compliment = {
     text: body.text,
     source: body.source,
     color: color,
-    id: generateId(),
+    id: MyLib.generateUid(),
   };
 
-  complimentsData = complimentsData.compliments.concat(compliment);
+  complimentsData.compliments = complimentsData.compliments.concat(compliment);
 
-  response.json(compliment);
+  response.json(complimentsData);
 });
 
 // POST Request ** receivedTexts **  ************************
 
-app.post("/api/receivedText", (request, response) => {
-  const body = request.body;
+//********************************************************* */
 
-  if (!body.text) {
-    return response.status(400).json({
-      error: "content missing",
-    });
-  }
-  const color = getRandomColor();
-  const compliment = {
-    text: body.text,
-    source: body.source,
-    color: color,
-    id: generateId(),
-  };
-
-  complimentsData = complimentsData.compliments.concat(compliment);
-
-  response.json(compliment);
-});
+// DELETE Request ********************************************8
 
 app.delete("/api/compliments/:id", (request, response) => {
   const id = Number(request.params.id);
