@@ -1,21 +1,38 @@
+require("dotenv").config();
 const express = require("express");
 const app = express();
+const Quote = require("./models/quote");
+
 const cors = require("cors");
+
+const path = require("path");
 
 app.use(express.json());
 
 app.use(cors());
 
+app.use(express.static("dist"));
+
+const mongoose = require("mongoose");
+
+// DO NOT SAVE YOUR PASSWORD TO GITHUB!!
+const url = `mongodb+srv://quote-app:quoteapp@plastic-db.djoer9l.mongodb.net/QuotesApp?retryWrites=true&w=majority`;
+
+mongoose.set("strictQuery", false);
+mongoose.connect(url);
+
+const quoteSchema = new mongoose.Schema({
+  text: String,
+  source: String,
+  color: String,
+});
+
 var MyLib = {
-  //Max id guaranted to be unique will be 999 999 999.
-  //Add more zeros to increase the value.
   lastUid: 100000000,
 
   generateUid: function () {
     this.lastUid++;
 
-    //Way to get a random int value betwen min and max:
-    //Math.floor(Math.random() * (max - min) ) + min;
     var randValue = Math.floor(Math.random() * (99999 - 10000)) + 10000;
 
     return String(this.lastUid.toString() + randValue);
@@ -105,8 +122,44 @@ let complimentsData = {
   ],
 };
 
+let adminAuth = {
+  admins: [{ email: "giodavlasheridze88@gmail.com", password: "giogio" }],
+};
+
+let receiveComplimentsData = {
+  receiveTexts: [],
+};
+
+// **********************************  ************************************* //
+
+// app.get("/api/admins", (request, response) => {
+//   response.json(adminAuth.admins);
+// });
+app.get("/api/admins", (request, response) => {
+  Quote.find({}).then((quote) => {
+    response.json(adminAuth.admins);
+  });
+});
+
+// **********************************  ************************************* //
+
+// app.get("/api/compliments", (request, response) => {
+//   response.json(complimentsData.compliments);
+// });
 app.get("/api/compliments", (request, response) => {
-  response.json(complimentsData);
+  Quote.find({}).then((quote) => {
+    response.json(complimentsData.compliments);
+  });
+});
+
+// **********************************  ************************************* //
+// app.get("/api/receiveTexts", (request, response) => {
+//   response.json(receiveComplimentsData.receiveTexts);
+// });
+app.get("/api/receiveTexts", (request, response) => {
+  Quote.find({}).then((receivedTexts) => {
+    response.json(receiveComplimentsData.receiveTexts);
+  });
 });
 
 app.get("/api/compliments/:id", (request, response) => {
@@ -157,6 +210,28 @@ app.post("/api/compliments", (request, response) => {
 // POST Request ** receivedTexts **  ************************
 
 //********************************************************* */
+app.post("/api/receiveTexts", (request, response) => {
+  const body = request.body;
+
+  if (!body.text) {
+    return response.status(400).json({
+      error: "content missing",
+    });
+  }
+  const color = getRandomColor();
+
+  const compliment = {
+    text: body.text,
+    author: body.author,
+    color: color,
+    id: MyLib.generateUid(),
+  };
+
+  receiveComplimentsData.receiveTexts =
+    receiveComplimentsData.receiveTexts.concat(compliment);
+
+  response.json(receiveComplimentsData);
+});
 
 // DELETE Request ********************************************8
 
@@ -167,6 +242,21 @@ app.delete("/api/compliments/:id", (request, response) => {
     (note) => note.id !== id
   );
   response.status(204).end();
+});
+
+app.delete("/api/receiveTexts/:id", (request, response) => {
+  console.log(typeof request.params.id, "delete request ...");
+  const id = Number(request.params.id);
+
+  receiveComplimentsData.receiveTexts =
+    receiveComplimentsData.receiveTexts.filter(
+      (note) => Number(note.id) !== id
+    );
+  response.status(204).end();
+});
+
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "dist", "index.html"));
 });
 
 const PORT = process.env.PORT || 3001;
