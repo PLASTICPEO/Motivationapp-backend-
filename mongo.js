@@ -23,8 +23,8 @@ const quoteSchema = new mongoose.Schema({
 const Quote = mongoose.model("Quote", quoteSchema);
 
 const quote = new Quote({
-  text: "გოუმარჯოს სიმართლეს",
-  source: "ნიცშე",
+  text: "In character, in manner, in style, in all things, the supreme excellence is simplicity",
+  source: "Henry Wadsworth Longfellow",
   color: "#58A4B0",
 });
 
