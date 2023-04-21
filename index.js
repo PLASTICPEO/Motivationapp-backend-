@@ -14,9 +14,11 @@ app.use(cors());
 app.use(express.static("dist"));
 
 const mongoose = require("mongoose");
+const pass = process.env.password;
+console.log(pass);
 
 // DO NOT SAVE YOUR PASSWORD TO GITHUB!!
-const url = `mongodb+srv://quote-app:quoteapp@plastic-db.djoer9l.mongodb.net/QuotesApp?retryWrites=true&w=majority`;
+const url = `mongodb+srv://quote-app:${pass}@plastic-db.djoer9l.mongodb.net/QuotesApp?retryWrites=true&w=majority`;
 
 mongoose.set("strictQuery", false);
 mongoose.connect(url);
