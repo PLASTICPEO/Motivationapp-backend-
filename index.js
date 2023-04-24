@@ -25,11 +25,26 @@ mongoose.connect(url);
 
 app.get("/api/compliments", (req, res) => {
   Quote.find({}).then((quotes) => {
-    res.status(200).send(quotes.filter((quote) => quote.approved));
+    res.status(200).send(quotes.filter((quote) => quote));
   });
 });
 
 app.post("/api/compliments/create", (req, res) => {
+  let randColor = [
+    "#16a085",
+    "#27ae60",
+    "#2c3e50",
+    "#f39c12",
+    "#e74c3c",
+    "#9b59b6",
+    "#FB6964",
+    "#342224",
+    "#472E32",
+    "#BDBB99",
+    "#77B1A9",
+    "#73A857",
+  ];
+  const color = randColor[Math.floor(Math.random() * randColor.length)];
   const body = req.body;
 
   if (!body.text) {
@@ -37,7 +52,6 @@ app.post("/api/compliments/create", (req, res) => {
       error: "content missing",
     });
   }
-  const color = getRandomColor();
 
   const compliment = {
     text: body.text,
@@ -79,15 +93,25 @@ app.get("/api/admins", (request, response) => {
   });
 });
 
-const getRandomColor = () => {
-  const letters = "0123456789ABCDEF";
-  let color = "#";
-  for (let i = 0; i < 6; i++) {
-    color += letters[Math.floor(Math.random() * 16)];
-  }
-  return color;
-};
+app.post("/api/admins", (req, res) => {
+  const { email, password } = req.body;
 
+  if (!email || !password) {
+    return res
+      .status(400)
+      .json({ error: "Username and password are required" });
+  }
+
+  const admin = new Admin({ email, password });
+  admin
+    .save()
+    .then(() => {
+      res.status(201).json({ message: `Admin: ${email} created successfully` });
+    })
+    .catch((err) => {
+      res.status(500).json({ error: err.message });
+    });
+});
 app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, "dist", "index.html"));
 });

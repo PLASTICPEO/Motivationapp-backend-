@@ -1,9 +1,9 @@
 import axios from "axios";
 
-const baseURL = "http://localhost:3001";
+const baseURL = import.meta.env.VITE_BASE_URL;
 
 const axiosParams = {
-  baseURL,
+  baseURL: baseURL,
 };
 
 const axiosInstance = axios.create(axiosParams);
