@@ -18,7 +18,7 @@ const mongoose = require("mongoose");
 const pass = process.env.password;
 
 // DO NOT SAVE YOUR PASSWORD TO GITHUB!!
-const url = `mongodb+srv://quote-app:quoteapp@plastic-db.djoer9l.mongodb.net/QuotesApp?retryWrites=true&w=majority`;
+const url = `mongodb+srv://quote-app:${pass}@plastic-db.djoer9l.mongodb.net/QuotesApp?retryWrites=true&w=majority`;
 
 mongoose.set("strictQuery", false);
 mongoose.connect(url);

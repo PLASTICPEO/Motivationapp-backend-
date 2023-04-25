@@ -7,7 +7,7 @@ if (process.argv.length < 3) {
 
 const password = process.argv[2];
 
-const url = `mongodb+srv://quote-app:quoteapp@plastic-db.djoer9l.mongodb.net/QuotesApp?retryWrites=true&w=majority`;
+const url = `mongodb+srv://quote-app:${password}@plastic-db.djoer9l.mongodb.net/QuotesApp?retryWrites=true&w=majority`;
 
 console.log(url);
 
